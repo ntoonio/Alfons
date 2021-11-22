@@ -34,15 +34,17 @@ def runExecutionTests():
 					i += 1
 
 			if True in tRL:
+				logging.debug("Executing automation '" + str(a) + "'")
 				executeActions(a)
 
 def _readAllAutomations():
 	for fileName in os.listdir(PATH + "/automations"):
 		if (fileName.endswith(".yaml") or fileName.endswith(".yml")) and not fileName.startswith("_"):
+			logger.info("Loading automatisation '" + fileName.replace(".yaml", "").replace(".yml", "") + "'")
 			readAutomation(fileName)
 
 def readAutomation(fileName):
-	logger.debug("Loading automation '{}'".format(name))
+	logger.debug("Loading automation '{}'".format(fileName))
 
 	with open(PATH + "/automations/" + fileName) as f:
 		a = yaml.safe_load(f)

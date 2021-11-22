@@ -18,7 +18,7 @@ def on_disconnect(*args):
 def publish(**kwargs):
 	topic = kwargs.get("topic")
 	payload = kwargs.get("payload", None)
-	qos = kwargs.get("qos", 0)
+	qos = kwargs.get("qos", 1)
 	retain = kwargs.get("retain", False)
 
 	logger.debug("Publishing '{}' to {} with qos set to {}. retain={}".format(payload, topic, qos, retain))
@@ -37,12 +37,11 @@ def start(q):
 	client.on_connect = on_connect
 	client.on_disconnect = on_disconnect
 
-	sslContext = None
 	if c.config["ssl"]["enabled"]:
 		sslContext = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
 		sslContext.load_verify_locations(cafile=certifi.where())
+		client.tls_set_context(sslContext)
 
-	client.tls_set_context(sslContext)
 
 	# It's ok that this is insecure since it's only a local connection. The only reason it uses TLS is because that's what the
 	# broker is using and it can't connect without it. It might, in the future if we need more local connections, be an
