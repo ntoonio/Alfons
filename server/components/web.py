@@ -92,7 +92,7 @@ def start(q):
 	app.router.add_get("/api/v1/info/", apiInfoHandle)
 	app.router.add_put("/api/v1/mqtt_publish/", mqttPublishHandle)
 
-	app.router.add_static("/", common.PATH + "components/web/")
+	app.router.add_static("/", common.PATH + "server/components/web/")
 
 	sslContext = None
 	if c.config["ssl"]["enabled"] and c.config["web"]["inside_port"] == None:

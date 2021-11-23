@@ -2,9 +2,10 @@ import os
 import string
 import secrets
 import components
+import sys
 
 DEBUG = True
-PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
+PATH = os.path.dirname(os.path.abspath(sys.argv[0])) + "/"
 
 config = {}
 

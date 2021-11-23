@@ -1,0 +1,21 @@
+data_path: data/
+
+domain: NULL
+
+location:
+  lat: "00.000000"
+  long: "00.000000"
+
+ssl:
+  cert_file: NULL
+  chain_file: NULL
+  key_file: NULL
+  trusted_file: NULL
+
+mqtt:
+  tcp_port: 27371
+  ws_port: 27372
+
+web:
+  port: 8080
+  inside_port: NULL

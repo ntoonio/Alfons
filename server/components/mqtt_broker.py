@@ -9,8 +9,7 @@ import authorization as a
 
 logging.getLogger("transitions.core").setLevel(100)
 
-@asyncio.coroutine
-def broker_coro():
+async def broker_coro():
 	global broker
 
 	brokerConfig = {
@@ -43,12 +42,13 @@ def broker_coro():
 		}
 	}
 
+	logging.getLogger("amqtt.broker.plugins.event_logger_plugin").setLevel(logging.WARNING)
+
 	broker = Broker(brokerConfig, None)
-	yield from broker.start()
+	await broker.start()
 
 def start(q):
-	asyncio.set_event_loop(asyncio.new_event_loop())
-	asyncio.get_event_loop().run_until_complete(broker_coro())
-
 	q.put(0)
-	asyncio.get_event_loop().run_forever()
+
+	asyncio.new_event_loop().run_until_complete(broker_coro())
+

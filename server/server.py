@@ -26,10 +26,10 @@ def setupConfig():
 				base[k] = head[k]
 		return base
 
-	with open(c.PATH + "config/default_config.yaml") as f:
+	with open(c.PATH + "config/config.yaml.default") as f:
 		baseConfig = yaml.safe_load(f)
 
-	with open(c.PATH + "config/alfons.yaml") as f:
+	with open(c.PATH + "config/config.yaml") as f:
 		headConfig = yaml.safe_load(f)
 
 	c.config = _configMerge(baseConfig, headConfig)
@@ -60,12 +60,12 @@ def main():
 
 	setupConfig()
 
-	with open(c.PATH + "components/manifest.json") as manifestFile:
+	with open(c.PATH + "server/components/manifest.json") as manifestFile:
 		componentsList = json.load(manifestFile)["load_order"]
 
 		for component in componentsList:
 			fileName = component + ".py"
-			module = imp.load_source(fileName[:-3], c.PATH + "components/" + fileName)
+			module = imp.load_source(fileName[:-3], c.PATH + "server/components/" + fileName)
 			comp.components[fileName[:-3]] = module
 
 	startCompQueue = Queue()
