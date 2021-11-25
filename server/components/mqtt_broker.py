@@ -1,4 +1,5 @@
 import asyncio
+import server
 from hbmqtt.broker import Broker
 from hbmqtt.plugins.authentication import BaseAuthPlugin
 import logging
@@ -48,7 +49,7 @@ async def broker_coro():
 	await broker.start()
 
 def start(q):
-	q.put(0)
+	server.sharedEventLoop.run_until_complete(broker_coro())
 
-	asyncio.new_event_loop().run_until_complete(broker_coro())
+	q.put(0)
 

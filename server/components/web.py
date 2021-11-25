@@ -1,4 +1,5 @@
 import common
+import server
 import os
 import json
 import logging
@@ -62,15 +63,11 @@ async def mqttPublishHandle(request):
 	t = params["topic"]
 	p = params["payload"]
 	q = params["qos"] if "qos" in params else 1
-	r = params["ratain"] if "retain" in params else False
+	r = params["retain"] if "retain" in params else False
 
-	messageInfo = mqtt_client.publish(topic=t, payload=p, qos=q, retain=r)
-	messageInfo.wait_for_publish()
-
-	if messageInfo.is_published():
-		return web.json_response(data={"success": True, "msg": "Succesfully published to topic '{}'".format(t)}, status=201)
-	else: # Can this happen?
-		return web.json_response(data={"success": False, "msg": "The message wasn't published due to unknown reasons"}, status=500)
+	messageInfo = await mqtt_client.publish(topic=t, payload=p, qos=q, retain=r)
+		
+	return web.json_response(data={"success": True, "msg": "Succesfully published to topic '{}'".format(t)}, status=201)
 
 # Preload some data so the files won't have to be read for every page visit
 def loadData():
@@ -102,10 +99,10 @@ def start(q):
 	webPort = c.config["web"]["port"] if c.config["web"]["inside_port"] == None else c.config["web"]["inside_port"]
 
 	logger.info("Starting web server on {}".format(webPort))
-	asyncio.set_event_loop(asyncio.new_event_loop())
-	server = asyncio.get_event_loop().create_server(app.make_handler(), host="0.0.0.0", port=webPort, ssl=sslContext)
-	asyncio.get_event_loop().run_until_complete(server)
+
+	asyncio.set_event_loop(server.sharedEventLoop)
+	s = server.sharedEventLoop.create_server(app.make_handler(), host="0.0.0.0", port=webPort, ssl=sslContext)
+	server.sharedEventLoop.run_until_complete(s)
 
 	q.put(0)
 
-	asyncio.get_event_loop().run_forever()

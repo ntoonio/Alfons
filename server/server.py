@@ -1,4 +1,5 @@
 import socket
+import asyncio
 import threading
 import json
 import os
@@ -55,8 +56,13 @@ def setupConfig():
 		c.config["ip"] = s.getsockname()[0]
 		s.close()
 
+sharedEventLoop = None
+
 def main():
+	global sharedEventLoop
 	logger.info("Starting Alfons!")
+
+	sharedEventLoop = asyncio.get_event_loop()
 
 	setupConfig()
 
@@ -92,6 +98,8 @@ def main():
 				break
 			else:
 				logger.info("Successfully set up component {}".format(name))
+	
+	sharedEventLoop.run_forever()
 
 def start():
 	try:

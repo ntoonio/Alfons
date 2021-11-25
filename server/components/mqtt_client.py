@@ -7,33 +7,32 @@ import logging
 import certifi
 import ssl
 from ssl import PROTOCOL_TLSv1_1
+import server
 
 logger = logging.getLogger(__name__)
 
-def publish(**kwargs):
+async def publish(**kwargs):
 	topic = kwargs.get("topic")
-	payload = kwargs.get("payload", None)
+	payload = kwargs.get("payload", "").encode("utf-8")
 	qos = kwargs.get("qos", 1)
 	retain = kwargs.get("retain", False)
 
 	logger.debug("Publishing '{}' to {} with qos set to {}. retain={}".format(payload, topic, qos, retain))
+	msg = await client.publish(topic, payload, qos=qos)
 
-	return client.publish(topic, payload, qos=qos, retain=retain)
+	return msg
 
 async def run():
+	global client
 	client = MQTTClient()
 
-	# The broker won't have had time enough to start yet
-	time.sleep(1)
-	await client.connect("mqtt" + ("s" if c.config["ssl"]["enabled"] else "") + "://server" + c.MQTT_SERVER_PASSWORD + "@127.0.0.1:" + str(c.config["mqtt"]["tcp_port"]))
+	await client.connect("mqtt" + ("" if c.config["ssl"]["enabled"] else "") + "://server:" + c.MQTT_SERVER_PASSWORD + "@127.0.0.1:" + str(c.config["mqtt"]["tcp_port"]))
 	logger.info("MQTT client connected.")
 
 def start(q):
-	global client
-
 	comp.components["automation"].registerAction("mqtt", publish)
 
-	q.put(0)
+	server.sharedEventLoop.create_task(run())
 
-	asyncio.run(run())
+	q.put(0)
 
