@@ -1,4 +1,5 @@
 import os
+import traceback
 import logging
 import yaml
 from common import PATH
@@ -20,7 +21,12 @@ def runExecutionTests():
 			for condition in automations[a]["conditions"]:
 				if "condition" in condition:
 					if condition["condition"] in conditions:
-						tRL.append(testCondition(condition))
+						try:
+							tRL.append(testCondition(condition))
+						except Exception as e:
+							logger.exception("Failed to evaluate condition for automation")
+							tRL = []
+							break
 						tRL.append(condition.get("rel", "and"))
 
 			tRL = tRL[:-1]
@@ -35,7 +41,7 @@ def runExecutionTests():
 					i += 1
 
 			if True in tRL:
-				logging.debug("Executing automation '" + str(a) + "'")
+				logging.info("Executing automation '" + str(a) + "'")
 				executeActions(a)
 
 def _readAllAutomations():
@@ -83,7 +89,7 @@ def executeActions(target):
 	for action in automations[target]["actions"]:
 		try:
 			actionName = action["action"]
-
+	
 			# create_task executes after a delay... but it's ok for this purpose
 			server.sharedEventLoop.create_task(actions[actionName](**action))
 		except:
@@ -97,3 +103,4 @@ def start(q):
 	while True:
 		time.sleep(1 - (time.time() % 1))
 		runExecutionTests()
+			
