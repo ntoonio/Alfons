@@ -16,9 +16,8 @@ build/
 *.crt
 *.srl
 
-Alfons/automations/*
-Alfons/config/alfons.yaml
-Alfons/config/data/
+automations/*
+data/*
 
 _*
 !__*__.py

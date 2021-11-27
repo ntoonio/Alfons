@@ -3,6 +3,7 @@ import logging
 import yaml
 from common import PATH
 import time
+import server
 
 logger = logging.getLogger(__name__)
 
@@ -43,10 +44,10 @@ def _readAllAutomations():
 
 	for fileName in os.listdir(PATH + "/automations"):
 		if (fileName.endswith(".yaml") or fileName.endswith(".yml")) and not fileName.startswith("_"):
-			logger.info("Loading automatisation '" + fileName.replace(".yaml", "").replace(".yml", "") + "'")
+			logger.info("Loading automation '" + fileName.replace(".yaml", "").replace(".yml", "") + "'")
 			readAutomation(fileName)
 
-def _readAutomation(fileName):
+def readAutomation(fileName):
 	logger.debug("Loading automation '{}'".format(fileName))
 
 	with open(PATH + "/automations/" + fileName) as f:
@@ -82,7 +83,9 @@ def executeActions(target):
 	for action in automations[target]["actions"]:
 		try:
 			actionName = action["action"]
-			actions[actionName](**action)
+
+			# create_task executes after a delay... but it's ok for this purpose
+			server.sharedEventLoop.create_task(actions[actionName](**action))
 		except:
 			logger.error("Couldn't exec action '" + actionName + "' for target '" + target + "'")
 
